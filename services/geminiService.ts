@@ -20,7 +20,7 @@ export const generateTasksForPhase = async (phaseTitle: string, lastTask: Task |
   try {
     // 2. هذا هو السطر الذي أصلحنا فيه الخطأ (أضفنا ``)
     const model = ai.getGenerativeModel({ model: "gemini-pro" });
-    const prompt = Generate tasks for phase: ${phaseTitle}; // <--- تم الإصلاح هنا
+    const prompt = 'Generate tasks for phase: ${phaseTitle}'; // <--- تم الإصلاح هنا
     
     // ...
     // ... (باقي الكود الخاص بك)
