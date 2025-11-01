@@ -4,6 +4,6 @@ import react from '@vitejs/plugin-react'
 // https://vitejs.dev/config/
 export default defineConfig({
   // هذا هو السطر الأهم
-  base: '/DevFlow/', 
+// base: '/DevFlow/', 
   plugins: [react()],
 })
