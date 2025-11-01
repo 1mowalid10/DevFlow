@@ -1,28 +1,90 @@
-import { GoogleGenerativeAI } from "@google/genai";
+import { GoogleGenAI, Type } from "@google/genai";
+import { Task, TaskStatus } from "../types";
 
-// 1. هذا هو السطر الذي ينشئ الاتصال، ويقرأ المفتاح من Vercel
-const ai = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
+const ai = new GoogleGenAI({ apiKey: process.env.API_KEY as string });
 
-// 2. لقد قمنا بحذف "Task" من هنا واستبدالها بـ "any" لتجنب الخطأ
-export const generateTasksForPhase = async (phaseTitle: string, lastTask: any | null): Promise<any[]> => {
+interface GeneratedTask {
+  title: string;
+  description: string;
+  durationDays: number;
+}
+
+export const generateTasksForPhase = async (phaseTitle: string, lastTask: Task | null): Promise<Task[]> => {
   try {
-    // 3. هذا هو السطر الذي أصلحنا فيه الخطأ (أضفنا ``)
-    const model = ai.getGenerativeModel({ model: "gemini-pro" });
-    const prompt = `Generate tasks for phase: ${phaseTitle}`; // <--- تم الإصلاح هنا
-    
-    // هذا مجرد مثال لإرجاع بيانات
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const text = response.text();
+    const prompt = `Generate a list of typical software development tasks for the project phase: "${phaseTitle}". For each task, provide a title, a brief description, and an estimated duration in days.`;
 
-    // 4. سنقوم بإرجاع بيانات عادية، بدون "Task"
-    const exampleData = { title: "Generated Content", description: text };
+    const response = await ai.models.generateContent({
+      model: "gemini-2.5-flash",
+      contents: prompt,
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.OBJECT,
+          properties: {
+            tasks: {
+              type: Type.ARRAY,
+              items: {
+                type: Type.OBJECT,
+                properties: {
+                  title: {
+                    type: Type.STRING,
+                    description: "The title of the task.",
+                  },
+                  description: {
+                    type: Type.STRING,
+                    description: "A brief description of the task.",
+                  },
+                  durationDays: {
+                    type: Type.NUMBER,
+                    description: "The estimated duration of the task in days."
+                  }
+                },
+                required: ["title", "description", "durationDays"],
+              },
+            },
+          },
+          required: ["tasks"],
+        },
+      },
+    });
     
-    return [exampleData]; 
+    const jsonText = response.text.trim();
+    const result = JSON.parse(jsonText);
+
+    if (result.tasks && Array.isArray(result.tasks)) {
+        let nextStartDate = lastTask ? new Date(lastTask.dueDate) : new Date();
+        nextStartDate.setDate(nextStartDate.getDate() + 1);
+
+        const generatedTasks: GeneratedTask[] = result.tasks.map((t: any) => ({
+            title: t.title || 'Untitled Task',
+            description: t.description || '',
+            durationDays: typeof t.durationDays === 'number' && t.durationDays > 0 ? t.durationDays : 1
+        }));
+        
+        return generatedTasks.map((task, index) => {
+            const startDate = new Date(nextStartDate);
+            const dueDate = new Date(startDate);
+            dueDate.setDate(startDate.getDate() + task.durationDays);
+            
+            // For the next task
+            nextStartDate = new Date(dueDate);
+            nextStartDate.setDate(nextStartDate.getDate() + 1);
+
+            return {
+                ...task,
+                id: `task-gen-${phaseTitle.replace(/\s/g, '')}-${Date.now()}-${index}`,
+                status: TaskStatus.ToDo,
+                assigneeId: null,
+                dependencies: lastTask ? [lastTask.id] : [],
+                startDate,
+                dueDate,
+            };
+        });
+    }
+    return [];
 
   } catch (error) {
-    console.error("Error generating tasks:", error);
+    console.error("Error generating tasks with Gemini API:", error);
     return [];
   }
 };
-
