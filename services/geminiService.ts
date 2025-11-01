@@ -1,6 +1,6 @@
 import { GoogleGenerativeAI } from "@google/genai";
 
-const ai = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
+const ai = new GoogleGenerativeAI(process.env.VITE_GEMINI_API_KEY);
 
 export const generateTasksForPhase = async (phaseTitle: string, lastTask: any | null): Promise<any[]> => {
   try {
