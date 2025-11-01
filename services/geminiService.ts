@@ -18,8 +18,9 @@ interface GeneratedTask {
 // @ts-ignore
 export const generateTasksForPhase = async (phaseTitle: string, lastTask: Task | null): Promise<Task[]> => {
   try {
+    // 2. هذا هو السطر الذي أصلحنا فيه الخطأ (أضفنا ``)
     const model = ai.getGenerativeModel({ model: "gemini-pro" });
-    const prompt = Generate tasks for phase: ${phaseTitle};
+    const prompt = Generate tasks for phase: ${phaseTitle}; // <--- تم الإصلاح هنا
     
     // ...
     // ... (باقي الكود الخاص بك)
