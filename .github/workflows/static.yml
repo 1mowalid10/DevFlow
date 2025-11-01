@@ -29,7 +29,6 @@ jobs:
       - name: Install dependencies
         run: npm install
       - name: Build
-        # "vite build" سيستخدم الـ "homepage" الذي أضفته في package.json
         run: npm run build
       - name: Setup Pages
         uses: actions/configure-pages@v5
@@ -37,7 +36,7 @@ jobs:
         uses: actions/upload-pages-artifact@v3
         with:
           # (Vite) المجلد الناتج عن
-          path: './dist' # <--- هذا هو التعديل الأهم (dist بدلاً من build)
+          path: './dist' # <--- هذا هو أهم سطر
       
   deploy:
     environment:
