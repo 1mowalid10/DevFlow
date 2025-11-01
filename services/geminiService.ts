@@ -1,4 +1,4 @@
-import { GoogleGenAI, Type } from "@google/genai";
+import { GoogleGenAI } from "@google/genai";
 import { Task, TaskStatus } from "../types";
 
 // استبدل السطر القديم بهذا السطر
