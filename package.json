@@ -1,5 +1,4 @@
 {
-  "homepage": "https://1mowalid10.github.io/DevFlow",
   "name": "copy-of-devflow",
   "private": true,
   "version": "0.0.0",
@@ -15,7 +14,11 @@
     "@google/genai": "^1.28.0"
   },
   "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.1",
     "vite": "^5.3.3",
-    "@vitejs/plugin-react": "^4.3.1"
+    "tailwindcss": "^3.4.4",
+    "postcss": "^8.4.38",
+    "autoprefixer": "^10.4.19"
   }
 }
+
